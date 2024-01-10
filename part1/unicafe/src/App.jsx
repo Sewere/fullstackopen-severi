@@ -1,98 +1,53 @@
 import { useState } from 'react'
 
-const Button = (props) => (
-  <button onClick={props.handleClick}>
-    {props.text}
-  </button>
-)
-
-const StatisticLine = ({ text, value }) => (
-  <table>
-  <tbody>
-  <tr>
-    <td>{text}</td>
-    <td>{value}</td>
-  </tr>
-  </tbody>
-  </table>
-)
-
-const Display = props => <div>{props.value}</div>
-
-const Statistics = (props) => {
-  const { good, neutral, bad, all, average, positive } = props
-
-  if (props.all === 0) {
-    return (
-      <div>
-        the app is used by pressing the buttons
-      </div>
-    )
-  }
-  return (
-  <div>
-    <h1>Statistics</h1>
-    <StatisticLine text="Good" value={good} />
-    <StatisticLine text="Neutral" value={neutral} />
-    <StatisticLine text="Bad" value={bad} />
-    <StatisticLine text="All" value={all} />
-    <StatisticLine text="Average" value={average} />
-    <StatisticLine text="Positive" value={positive} />
-  </div>
-  )
-}
-
-
 const App = () => {
-  // save clicks of each button to its own state
-  const [good, setGood] = useState(0)
-  const [neutral, setNeutral] = useState(0)
-  const [bad, setBad] = useState(0)
-  const [all, setAll] = useState(0)
-  const [average, setAverage] = useState(0)
-  const [avgList, setAvgList] = useState([])
-  const [positive, setPositive] = useState(0)
+  const anecdotes = [
+    'If it hurts, do it more often.',
+    'Adding manpower to a late software project makes it later!',
+    'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
+    'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
+    'Premature optimization is the root of all evil.',
+    'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
+    'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.',
+    'The only way to go fast, is to go well.'
+  ]
+   
+  const [selected, setSelected] = useState(0)
+  const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0))
 
-  const handleGood = () => {
-    setGood(good + 1)
-    setAll(all +1)
-    setAvgList([...avgList, 1])
-    refreshStats([...avgList, 1], good, all + 1)
-  }
-  const handleNeutral = () => {
-    setNeutral(neutral +1)
-    setAll(all +1)
-    setAvgList([...avgList, 0])
-    refreshStats([...avgList, 0], good, all + 1)
-  }
-  const handleBad = () => {
-    setBad(bad +1)
-    setAll(all +1)
-    setAvgList([...avgList, -1])
-    refreshStats([...avgList, -1], good, all + 1)
+  const handleVote = () => {
+    const voteCopy = [...votes];
+    voteCopy[selected] += 1;
+    setVotes(voteCopy);
   }
 
-  const refreshStats = (newList, goodCount, allCount) => {
-    const sum = newList.reduce((acc, cur) => acc + cur, 0);
-    const avg = sum / newList.length || 0;
-    setAverage(avg);
-    const posPercentage = (goodCount / allCount) * 100 || 0;
-    setPositive(posPercentage);
+  const getRandomAnecdote = () => {
+    const randomNumber = Math.floor(Math.random()*anecdotes.length);
+    setSelected(randomNumber);
   }
+
+  const mostVotedDote = votes.indexOf(Math.max(...votes))
 
   return (
     <div>
-      <h1>Give feedback</h1>
-      <Button text="Good" handleClick={handleGood}/><Button text="Neutral" handleClick={handleNeutral}/><Button text="Bad" handleClick={handleBad}/>
-        <Statistics
-        good={good}
-        neutral={neutral}
-        bad={bad}
-        all={all}
-        average={average}
-        positive={positive}
-      />
-
+      <div>
+        <h2>Anecday!</h2>
+        <p>{anecdotes[selected]}</p>
+        <p>Has been voted {votes[selected]} times</p>
+        <button onClick={handleVote}>Vote!</button>
+        <button onClick={getRandomAnecdote}>Next Dote</button>
+      </div>
+      <div>
+        <h2>Anecdote with the most votes</h2>
+        {votes[mostVotedDote] === 0 ? (
+          <p>No dotes voted as of yet</p>
+        ) : (
+          <>
+            <p>{anecdotes[mostVotedDote]}</p>
+            <p>Has been voted {votes[mostVotedDote]} times, making it the victor!</p>
+          </>
+        )}
+      </div>
     </div>
   )
 }
