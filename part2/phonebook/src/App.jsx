@@ -1,15 +1,19 @@
 import { useState } from 'react'
-import Note from './components/Note'
+import Person from './components/Person'
+import SearchFilter from './components/SearchFilter'
+import PersonForm from './components/PersonForm'
+import PersonsList from './components/PersonsList'
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas' }
-  ])
-  const [numbers, setNumbers] = useState([
-    { name: '09-123-123' }
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
+  const [searchPeeps, setSearchPeeps] = useState('')
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -19,12 +23,12 @@ const App = () => {
       const personObject = {
         name: newName,
         id: newName,
+        number: newNumber
       }
       setPersons(persons.concat(personObject))
     } else {
-      window.alert(`${newPersonName} already exists in the list.`)
+      window.alert(`${newName} already exists in the list.`)
     }
-
   }
 
   const handleNameChange = (event) => {
@@ -37,22 +41,35 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
+  const handleSearchChange = (event) => {
+    setSearchPeeps(event.target.value)
+  }
+
+  const filteredPersons = persons.filter((person) =>
+    person.name.toLowerCase().includes(searchPeeps.toLowerCase())
+  )
+
+  const clearSearch = () => {
+    setSearchTerm('')
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={addPerson}>
-        <div>name: <input value={newName} onChange={handleNameChange}/></div>
-        <div>number: <input value={newNumber} onChange={handleNumberChange}/></div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <SearchFilter
+        searchTerm={searchPeeps}
+        onSearchChange={handleSearchChange}
+        onClearSearch={clearSearch}
+      />
+      <PersonForm
+        newName={newName}
+        newNumber={newNumber}
+        onNameChange={handleNameChange}
+        onNumberChange={handleNumberChange}
+        onAddPerson={addPerson}
+      />
       <h2>Numbers</h2>
-      <ul>
-        {persons.map(person => 
-          <Note key={person.name} note={person} />
-        )}
-      </ul>
+      <PersonsList persons={filteredPersons} />
     </div>
   )
 }
