@@ -1,11 +1,11 @@
 import React from 'react'
-import Note from './Person'
+import Person from './Person'
 
-const PersonsList = ({ persons }) => {
+const PersonsList = ({ persons, destroyPerson }) => {
   return (
     <ul>
       {persons.map((person) => (
-        <Note key={person.name} note={person} />
+        <Person key={person.name} note={person}  destroyPerson={() => destroyPerson(person.id)}/>
       ))}
     </ul>
   )

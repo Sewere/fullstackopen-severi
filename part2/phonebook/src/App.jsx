@@ -1,23 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Person from './components/Person'
 import SearchFilter from './components/SearchFilter'
 import PersonForm from './components/PersonForm'
 import PersonsList from './components/PersonsList'
+import axios from 'axios'
+import personService from './services/notes'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchPeeps, setSearchPeeps] = useState('')
 
+  useEffect(() => {
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+  }, [])
+
   const addPerson = (event) => {
     event.preventDefault()
-    console.log('button clicked', event.target)
     const personExists = persons.find(person => person.name === newName)
     if (!personExists) {
       const personObject = {
@@ -25,9 +29,27 @@ const App = () => {
         id: newName,
         number: newNumber
       }
-      setPersons(persons.concat(personObject))
+      personService
+      .create(personObject)
+        .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+      })
     } else {
-      window.alert(`${newName} already exists in the list.`)
+      const updateNro = window.confirm(`The name ${newName} already exists. Do you want to update its number?`)
+      if(updateNro){
+        const changedPerson = { ...personExists, number:newNumber}
+        console.log("OI", changedPerson)
+        personService
+        .update(changedPerson.id, changedPerson)
+        .then((returnedPerson) => {
+          setPersons(persons.map((person) => (person.id !== changedPerson.id ? person : returnedPerson)));
+        })
+        .catch((error) => {
+          alert(`SOMETHING WENT WRONG`);
+        })
+      }
     }
   }
 
@@ -46,11 +68,28 @@ const App = () => {
   }
 
   const filteredPersons = persons.filter((person) =>
-    person.name.toLowerCase().includes(searchPeeps.toLowerCase())
+  person.name && person.name.toLowerCase().includes(searchPeeps.toLowerCase())
   )
 
   const clearSearch = () => {
     setSearchTerm('')
+  }
+
+  const destroyPerson = id => {
+    const confirmed = window.confirm(`Are you sure you want to delete ${id}?`)
+    if(confirmed){
+      console.log(`Destroying person with id ${id}`)
+      personService
+        .destroyPerson(id)
+          .then(returnedPerson => {
+          setPersons(persons.filter(person => person.id !== id))
+        })
+        .catch(error => {
+          alert(
+            `WHat HAppEnEd?`
+          )
+        })
+    }
   }
 
   return (
@@ -69,7 +108,7 @@ const App = () => {
         onAddPerson={addPerson}
       />
       <h2>Numbers</h2>
-      <PersonsList persons={filteredPersons} />
+      <PersonsList persons={filteredPersons} destroyPerson={destroyPerson} />
     </div>
   )
 }
