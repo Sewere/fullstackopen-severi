@@ -5,12 +5,14 @@ import PersonForm from './components/PersonForm'
 import PersonsList from './components/PersonsList'
 import axios from 'axios'
 import personService from './services/notes'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchPeeps, setSearchPeeps] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     personService
@@ -36,6 +38,9 @@ const App = () => {
         setNewName('')
         setNewNumber('')
       })
+      setErrorMessage(
+        `Henkilö nimeltä '${newName}' luotiin.`
+      )
     } else {
       const updateNro = window.confirm(`The name ${newName} already exists. Do you want to update its number?`)
       if(updateNro){
@@ -107,6 +112,7 @@ const App = () => {
         onNumberChange={handleNumberChange}
         onAddPerson={addPerson}
       />
+      <Notification message={errorMessage} />
       <h2>Numbers</h2>
       <PersonsList persons={filteredPersons} destroyPerson={destroyPerson} />
     </div>
