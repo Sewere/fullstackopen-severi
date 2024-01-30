@@ -1,7 +1,16 @@
 const express = require('express')
+var morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
+
+morgan.token('req-body', (req) => JSON.stringify(req.body));
+
+const customFormat = ':method :url :status :res[content-length] - :response-time ms :req[content-type] - :req-body';
+
+app.use(morgan(customFormat, {
+  stream: { write: (message) => console.log(message.trim()) }
+}))
 
 let notes = [
     {   id: 1,
@@ -49,7 +58,6 @@ app.get('/info', (request, response) => {
   console.log(request)
   const howMany = persons.length
   const timeOfRequest = new Date().toString()
-  console.log("Huh?",timeOfRequest)
   const page = `<p>The Phonebook has info of ${howMany} people</p>
   <br><p>The date of request: ${timeOfRequest}`
   response.send(page)
@@ -57,6 +65,24 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons', (request, response) => {
   response.json(persons)
+})
+
+app.get('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id)
+  const person = persons.find(person => person.id ===id)
+  if(person) {
+    response.json(person)
+  }
+  else {
+      response.status(404).end()
+  }
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id)
+  const person = persons.find(person => person.id ===id)
+
+  response.status(204).end()
 })
 
 app.get('/api/notes', (request, response) => {
@@ -83,11 +109,37 @@ app.delete('/api/notes/:id', (request, response) => {
 })
 
 const generateId = () => {
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => n.id))
-    : 0
-  return maxId + 1
+  const randID = Math.floor(Math.random() * 100000)
+  return randID
 }
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body
+  console.log(body)
+  alreadyExists = persons.find(person => person.name == body.name)
+
+  const errorMessage = !body.name
+  ? 'Name is missing'
+  : !body.number
+  ? 'No number'
+  : alreadyExists
+  ? `The name ${body.name} already exists.`
+  : null
+
+  if (errorMessage) {
+    return response.status(400).json({ error: errorMessage });
+  }
+
+  const person = {
+    name: body.name,
+    important: Boolean(body.important) || false,
+    id: generateId(),
+  }
+  console.log(person)
+  persons = persons.concat(person)
+
+  response.json(person)
+})
 
 app.post('/api/notes', (request, response) => {
   const body = request.body
