@@ -1,8 +1,11 @@
 const express = require('express')
 var morgan = require('morgan')
 const app = express()
+const cors = require('cors')
+const baseUrl = '/api/notes'
 
 app.use(express.json())
+app.use(express.static('dist'))
 
 morgan.token('req-body', (req) => JSON.stringify(req.body));
 
@@ -11,6 +14,8 @@ const customFormat = ':method :url :status :res[content-length] - :response-time
 app.use(morgan(customFormat, {
   stream: { write: (message) => console.log(message.trim()) }
 }))
+
+app.use(cors())
 
 let notes = [
     {   id: 1,
@@ -161,7 +166,7 @@ app.post('/api/notes', (request, response) => {
   response.json(note)
 })
 
-const PORT = 3001
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 3001
+  app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
