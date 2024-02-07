@@ -1,4 +1,4 @@
 GET http://localhost:3001/api/notes
 
 ###
-GET http://localhost:3001/api/persons
+GET https://simpyn-part3.fly.dev/api/persons

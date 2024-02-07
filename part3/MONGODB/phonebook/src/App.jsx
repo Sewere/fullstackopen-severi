@@ -18,7 +18,6 @@ const App = () => {
     personService
       .getAll()
       .then(initialPersons => {
-        console.log("peeps yo", initialPersons)
         setPersons(initialPersons)
       })
   }, [])
@@ -78,7 +77,7 @@ const App = () => {
   )
 
   const clearSearch = () => {
-    setSearchPeeps('')
+    setSearchTerm('')
   }
 
   const destroyPerson = id => {
