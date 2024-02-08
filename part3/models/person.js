@@ -2,7 +2,6 @@ const mongoose = require('mongoose')
 
 mongoose.set('strictQuery', false)
 const url = process.env.MONGODB_URI
-console.log("URI ERI HIDASTE", url)
 mongoose.connect(url)
   .then(result => {
     console.log('connected to MongoDB')
@@ -12,8 +11,22 @@ mongoose.connect(url)
   })
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true
+  },
+  number: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        const phoneNumberRegex = /^(\d{2,3})-(\d{8,})$/
+        return phoneNumberRegex.test(v)
+      },
+      message: props => `${props.value} is not a valid phone number! Please use the format XX-XXXXXXXX.`
+    },
+    required: true
+  }
 })
 
 personSchema.set('toJSON', {

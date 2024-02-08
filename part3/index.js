@@ -10,9 +10,9 @@ app.use(express.static('dist'))
 app.use(express.json())
 app.use(cors())
 
-morgan.token('req-body', (req) => JSON.stringify(req.body));
+morgan.token('req-body', (req) => JSON.stringify(req.body))
 
-const customFormat = ':method :url :status :res[content-length] - :response-time ms :req[content-type] - :req-body';
+const customFormat = ':method :url :status :res[content-length] - :response-time ms :req[content-type] - :req-body'
 
 app.use(morgan(customFormat, {
   stream: { write: (message) => console.log(message.trim()) }
@@ -32,46 +32,30 @@ app.get('/info', async (request, response) => {
   response.send(page)
 })
 
-/*
-app.get('/api/persons', (request, response) => {
-  response.json(persons)
-})*/
 app.get('/api/persons', async (request, response) => {
   try {
     const persons = await Person.find({}).then(persons => {
-      console.log("tyypit: ", persons)
+      console.log('tyypit: ', persons)
       response.json(persons)
     })
   } catch (error) {
-    console.log("Some kind of error happened", error)
+    console.log('Some kind of error happened', error)
     response.status(500).json({ error: 'Internal Server Error happened 4 real' })
   }
 })
-/*
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = persons.find(person => person.id === id)
-  if(person) {
-    response.json(person)
-  }
-  else {
-      response.status(404).end()
-  }
-})*/
+
 app.get('/api/persons/:id', (request, response) => {
   Person.findById(request.params.id).then(person => {
     if(person) {
       response.json(person)
     }
     else {
-        response.status(404).end()
+      response.status(404).end()
     }
   })
 })
 
-
-
-app.post('/api/persons', async (request, response) => {
+app.post('/api/persons', async (request, response, next) => {
   const body = request.body
   if (!body.name) {
     console.log("NO BODYYYY")
@@ -84,20 +68,17 @@ app.post('/api/persons', async (request, response) => {
     id: body.id
   })
 
-  try {
-    const savedPerson = await person.save()
+  person.save().then(savedPerson => {
     response.json(savedPerson)
-  } catch (error) {
-    console.error(error)
-    response.status(500).json({ error: 'Womp womp' });
-  }
+  })
+  .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
   console.log("ID TO DESTROY:", request.params.id)
   Person.findByIdAndDelete(request.params.id)
     .then(result => {
-      console.log(`Person with id=${request.params.id} deleted`,)
+      console.log(`Person with id=${request.params.id} deleted`)
       response.status(204).end()
     })
     .catch(error => {
@@ -110,7 +91,11 @@ app.put('/api/persons/:id', (request, response, next) => {
   const { name, number } = request.body
   const updatedFields = { name, number }
 
-  Person.findByIdAndUpdate(request.params.id, { $set: updatedFields }, { new: true })
+  Person.findByIdAndUpdate(
+    request.params.id,
+    { $set: updatedFields },
+    { new: true, runValidators: true, context: 'query' }
+    )
     .then(updatedPerson => {
       if (updatedPerson) {
         response.json(updatedPerson)
@@ -158,12 +143,15 @@ app.use(unknownEndpoint)
 
 //This one last
 const errorHandler = (error, request, response, next) => {
-  console.error(error)
-  if (error.status) {
-    response.status(error.status).json({ error: error.message })
-  } else {
-    response.status(500).json({ error: 'Internal Server Error happened 4 realsies' })
+  console.error(error.message)
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
   }
+  else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message }) 
+  }
+
+  next(error)
 }
 app.use(errorHandler)
 

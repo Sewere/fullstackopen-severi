@@ -34,14 +34,20 @@ const App = () => {
       }
       personService
       .create(personObject)
-        .then(returnedPerson => {
+      .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
         setNewName('')
         setNewNumber('')
+        setErrorMessage(
+          `Henkilö nimeltä '${newName}' luotiin.`
+        )
       })
-      setErrorMessage(
-        `Henkilö nimeltä '${newName}' luotiin.`
-      )
+      .catch(error => {
+        setErrorMessage(
+          `There was an error: ${error.response.data.error}`
+        )
+        console.log("Error happenededed", error.response.data.error)
+      })
     } else {
       const updateNro = window.confirm(`The name ${newName} already exists. Do you want to update its number?`)
       if(updateNro){
