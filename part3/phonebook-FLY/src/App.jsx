@@ -29,7 +29,7 @@ const App = () => {
     if (!personExists) {
       const personObject = {
         name: newName,
-        id: newName,
+        id: generateId(),
         number: newNumber
       }
       personService
@@ -57,6 +57,11 @@ const App = () => {
         })
       }
     }
+  }
+
+  const generateId = () => {
+    const randID = Math.floor(Math.random() * 100000)
+    return randID
   }
 
   const handleNameChange = (event) => {

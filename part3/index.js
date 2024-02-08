@@ -3,11 +3,11 @@ var morgan = require('morgan')
 const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
-const baseUrl = '/api/notes'
 const Person = require('./models/person')
 
-app.use(express.json())
+//Order matters, errormiddleware last
 app.use(express.static('dist'))
+app.use(express.json())
 app.use(cors())
 
 morgan.token('req-body', (req) => JSON.stringify(req.body));
@@ -18,35 +18,13 @@ app.use(morgan(customFormat, {
   stream: { write: (message) => console.log(message.trim()) }
 }))
 
-let persons = [
-  { 
-    id: 1,
-    name: "Arto Hellas", 
-    number: "040-123456"
-  },
-  { 
-    id: 2,
-    name: "Ada Lovelace", 
-    number: "39-44-5323523"
-  },
-  { 
-    id: 3,
-    name: "Dan Abramov", 
-    number: "12-43-234345"
-  },
-  { 
-    id: 4,
-    name: "Mary Poppendieck", 
-    number: "39-23-6423122"
-  }
-]
-
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
 
-app.get('/info', (request, response) => {
+app.get('/info', async (request, response) => {
   console.log(request)
+  const persons = await Person.find({})
   const howMany = persons.length
   const timeOfRequest = new Date().toString()
   const page = `<p>The Phonebook has info of ${howMany} people</p>
@@ -92,10 +70,6 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 
-const generateId = () => {
-  const randID = Math.floor(Math.random() * 100000)
-  return randID
-}
 
 app.post('/api/persons', async (request, response) => {
   const body = request.body
@@ -107,7 +81,7 @@ app.post('/api/persons', async (request, response) => {
   const person = new Person({
     name: body.name,
     number: body.number,
-    id: generateId()
+    id: body.id
   })
 
   try {
@@ -118,6 +92,35 @@ app.post('/api/persons', async (request, response) => {
     response.status(500).json({ error: 'Womp womp' });
   }
 })
+
+app.delete('/api/persons/:id', (request, response, next) => {
+  console.log("ID TO DESTROY:", request.params.id)
+  Person.findByIdAndDelete(request.params.id)
+    .then(result => {
+      console.log(`Person with id=${request.params.id} deleted`,)
+      response.status(204).end()
+    })
+    .catch(error => {
+      console.log("Well here we are")
+      next(error)
+    })
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const { name, number } = request.body
+  const updatedFields = { name, number }
+
+  Person.findByIdAndUpdate(request.params.id, { $set: updatedFields }, { new: true })
+    .then(updatedPerson => {
+      if (updatedPerson) {
+        response.json(updatedPerson)
+      } else {
+        response.status(404).json({ error: 'Person not found' })
+      }
+    })
+    .catch(error => next(error))
+})
+
 /*
 app.post('/api/persons', (request, response) => {
   const body = request.body
@@ -146,6 +149,23 @@ app.post('/api/persons', (request, response) => {
 
   response.json(person)
 })*/
+
+//This one second last
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpointti' })
+}
+app.use(unknownEndpoint)
+
+//This one last
+const errorHandler = (error, request, response, next) => {
+  console.error(error)
+  if (error.status) {
+    response.status(error.status).json({ error: error.message })
+  } else {
+    response.status(500).json({ error: 'Internal Server Error happened 4 realsies' })
+  }
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
   app.listen(PORT, () => {
