@@ -1,0 +1,17 @@
+
+fly auth login
+
+fly logs
+
+fly launch
+
+Whenever you make changes to the application, you can take the new version to production with a command
+
+fly deploy
+
+
+Onks kaikki ok
+flyctl ping -o personal
+
+fly open
+avaa browserin
