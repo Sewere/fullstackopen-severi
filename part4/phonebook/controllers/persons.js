@@ -1,5 +1,5 @@
 const personRouter = require('express').Router()
-const Person = require('./models/person')
+const Person = require('../models/person.js')
 
 
 personRouter.get('/info', async (request, response) => {
@@ -49,7 +49,7 @@ personRouter.post('/api/persons', async (request, response, next) => {
   })
 
   person.save().then(savedPerson => {
-    response.json(savedPerson)
+    response.status(201).json(savedPerson)
   })
   .catch(error => next(error))
 })

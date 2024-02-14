@@ -1,0 +1,4 @@
+GET http://localhost:27017/bloglist/api/blogs
+
+###
+GET https://simpyn-part3.fly.dev/api/persons
