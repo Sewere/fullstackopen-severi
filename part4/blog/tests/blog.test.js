@@ -31,6 +31,24 @@ test('the unique identifier is named id instead of _id', async () => {
   })
 })
 
+test('the blog count rises when a new blog is added', async () => {
+  const newBlog = {
+    title: 'test blog',
+    author: 'test author',
+    url: 'http://test.com',
+    likes: 5
+  }
+
+  await api
+  .post('/api/blogs')
+  .send(newBlog)
+  .expect(201)
+
+  const response = await api.get('/api/blogs')
+  
+  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
