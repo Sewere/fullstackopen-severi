@@ -20,8 +20,15 @@ test('blogs are returned as JSON', async () => {
 
 test('all blogs are returned', async () => {
   const response = await api.get('/api/blogs')
-  console.log("täs body",response.body)
   expect(response.body).toHaveLength(helper.initialBlogs.length)
+})
+
+test('the unique identifier is named id instead of _id', async () => {
+  const response = await api.get('/api/blogs')
+  response.body.forEach(blog => {
+    expect(blog.id).toBeDefined()
+    expect(blog._id).toBeUndefined()
+  })
 })
 
 afterAll(() => {
