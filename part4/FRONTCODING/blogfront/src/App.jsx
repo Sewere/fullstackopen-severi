@@ -19,11 +19,11 @@ const App = () => {
 
   useEffect(() => {
     //window.localStorage.removeItem('loggedNoteappUser')
-    const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser')
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
-      noteService.setToken(user.token)
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -48,6 +48,10 @@ const App = () => {
       }, 5000)
     }
   }
+
+  const handleLogout = () => (
+    window.localStorage.removeItem('loggedBlogUser')
+  )
 
   const loginForm = () => (
     <form onSubmit={handleLogin}>
@@ -88,6 +92,21 @@ const App = () => {
     </form>  
   )
 
+  const addBlog = (event) => {
+    event.preventDefault()
+    const blogObject = {
+      title: newBlog,
+      important: Math.random() > 0.5,
+    }
+  
+    blogService
+    .create(blogObject)
+      .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog))
+        setNewNote('')
+      })
+  }
+
 
   return (
     <div>
@@ -97,33 +116,12 @@ const App = () => {
         <Blog key={blog.id} blog={blog} />
       )}
       </ul>
-            <form onSubmit={handleLogin}>
-              <div>
-                username
-                <input
-                type="text"
-                value={username}
-                name="Username"
-                onChange={({ target }) => setUsername(target.value)}
-                />
-              </div>
-              <div>
-                password
-                <input
-                type="password"
-                value={password}
-                name="Password"
-                onChange={({ target }) => setPassword(target.value)}
-                />
-              </div>
-              <button type="submit">login</button>
-            </form>
-            {!user && loginForm()} 
-            {user && <div>
-              <p>{user.name} logged in</p>
-                {noteForm()}
-            </div>
-            }
+      {!user && loginForm()} 
+      {user && <div>
+        <p>{user.name} logged in</p>
+          {blogForm()}
+      </div>
+      }
     
     </div>
   )
