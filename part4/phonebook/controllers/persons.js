@@ -38,7 +38,6 @@ personRouter.get('/api/persons/:id', (request, response) => {
 personRouter.post('/api/persons', async (request, response, next) => {
   const body = request.body
   if (!body.name) {
-    logger.info("NO BODYYYY")
     return response.status(400).json({ error: 'No bodyy' })
   }
 
