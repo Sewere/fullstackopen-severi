@@ -21,6 +21,20 @@ const Blog = ({ blog, updateBlogs }) => {
     }
   }
 
+  const handleDelete = async () => {
+    try {
+      const confirmed = window.confirm(`Do you want to delete blog "${blog.title}"?`)
+      if (!confirmed) {
+        return
+      }
+      await blogService.destroy(blog.id)
+      updateBlogs()
+    } catch (error) {
+      console.error('Error deleting blog:', error)
+    }
+  }
+  
+
   return (
     <div style={blogStyle}>
       <strong>{blog.title}</strong>
@@ -30,6 +44,7 @@ const Blog = ({ blog, updateBlogs }) => {
           <p>URL: {blog.url}</p>
           <p>Likes: {blog.likes}</p><button onClick={handleLike}> Like</button>
           <p>User: {blog.user.name}</p>
+          <button onClick={handleDelete}>Destroy</button>
         </div>
       </Toggleable>
     </div>

@@ -19,9 +19,7 @@ const App = () => {
   const blogFormRef = useRef()
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
+    updateBlogs()
   }, [])
 
   useEffect(() => {
@@ -35,9 +33,13 @@ const App = () => {
   }, [])
 
   const updateBlogs = async () => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )
+    try {
+      const fetchedBlogs = await blogService.getAll()
+      fetchedBlogs.sort((a, b) => b.likes - a.likes)
+      setBlogs(fetchedBlogs)
+    } catch (error) {
+      console.error('Error fetching blogs:', error)
+    }
   }
 
   const handleLogin = async (event) => {
@@ -98,6 +100,7 @@ const App = () => {
   )
 
   const showBlogs = () => {
+    blogs.sort
     return(
       <ul>
       {blogs.map(blog =>
