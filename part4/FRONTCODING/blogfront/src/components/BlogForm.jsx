@@ -20,22 +20,28 @@ const BlogForm = ({ createBlog }) => {
 
     const addBlog = (event) => {
         event.preventDefault()
-        console.log(createBlog)
         createBlog({
             title: newTitle,
             author: newAuthor,
             url: newURL,
-            likes: 0
+            likes: 0,
         })
         setNewAuthor('')
         setNewTitle('')
         setNewURL('')
     }
     const blogFormStyle = {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px'
-      }
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '10px',
+      maxWidth: '400px', 
+      margin: '0 auto',
+      padding: '20px', 
+      border: '1px solid #ccc',
+      borderRadius: '5px', 
+      boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+      backgroundColor: '#fff'
+    }
 
   return (
     <div>

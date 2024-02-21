@@ -34,7 +34,6 @@ const App = () => {
     }
   }, [])
 
-
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -69,10 +68,13 @@ const App = () => {
   }
 
   const addBlog = (blogObject) => {
-    noteFormRef.current.toggleVisibility()
+    if (blogFormRef.current) {
+      blogFormRef.current.toggleVisibility();
+    }
     blogService
     .create(blogObject)
       .then(returnedBlog => {
+        console.log("hoi saatana", returnedBlog)
         setBlogs(blogs.concat(returnedBlog))
         setErrorMessage(`A new blog: ${returnedBlog.title} by ${returnedBlog.author} added.`)
         setShowError(true)
@@ -82,14 +84,12 @@ const App = () => {
         }, 5000)
       })
   }
-
   
   const blogForm = () => (
     <Toggleable buttonLabel='New Blog' ref={blogFormRef}>
       <BlogForm createBlog={addBlog} />
     </Toggleable>
   )
-
 
   const showBlogs = () => {
     return(
@@ -125,11 +125,7 @@ const App = () => {
       </div>
       {showBlogs()}
       <button onClick={handleLogout}>Logout</button>
-      <Toggleable buttonLabel="New Blog">
-        <BlogForm
-          createBlog={addBlog}
-        />
-      </Toggleable>
+      {blogForm()}
     </div>
   )
   /* malli

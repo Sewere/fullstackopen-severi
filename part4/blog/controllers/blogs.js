@@ -37,6 +37,8 @@ router.post('/api/blogs', async (request, response, next) => {
     })
     const savedBlog = await blog.save()
 
+    await savedBlog.populate('user')
+
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
 
