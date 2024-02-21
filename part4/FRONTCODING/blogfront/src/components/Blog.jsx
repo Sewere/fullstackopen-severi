@@ -2,7 +2,7 @@ import React from 'react'
 import Toggleable from './Toggleable'
 import blogService from '../services/blogs'
 
-const Blog = ({ blog, updateBlogs }) => {
+const Blog = ({ blog, updateBlogs, currentUser }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -34,6 +34,7 @@ const Blog = ({ blog, updateBlogs }) => {
     }
   }
   
+  const isUserBlog = currentUser && blog.user && currentUser.name === blog.user.name
 
   return (
     <div style={blogStyle}>
@@ -44,7 +45,7 @@ const Blog = ({ blog, updateBlogs }) => {
           <p>URL: {blog.url}</p>
           <p>Likes: {blog.likes}</p><button onClick={handleLike}> Like</button>
           <p>User: {blog.user.name}</p>
-          <button onClick={handleDelete}>Destroy</button>
+          {isUserBlog && <button onClick={handleDelete}>Delete</button>}
         </div>
       </Toggleable>
     </div>

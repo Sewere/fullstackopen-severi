@@ -82,7 +82,6 @@ const App = () => {
     blogService
     .create(blogObject)
       .then(returnedBlog => {
-        console.log("hoi saatana", returnedBlog)
         setBlogs(blogs.concat(returnedBlog))
         setErrorMessage(`A new blog: ${returnedBlog.title} by ${returnedBlog.author} added.`)
         setShowError(true)
@@ -104,7 +103,7 @@ const App = () => {
     return(
       <ul>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} updateBlogs={updateBlogs} />
+        <Blog key={blog.id} blog={blog} updateBlogs={updateBlogs} currentUser={user}/>
       )}
       </ul>
     )
