@@ -12,6 +12,7 @@ const Blog = ({ blog, updateBlogs, currentUser }) => {
   }
 
   const handleLike = async () => {
+    console.log('LIKE CLICKED')
     try {
       const modifiedBlog = { ...blog, likes: blog.likes + 1 }
       const updatedBlog = await blogService.update(modifiedBlog.id, modifiedBlog)
@@ -39,11 +40,11 @@ const Blog = ({ blog, updateBlogs, currentUser }) => {
   return (
     <div style={blogStyle}>
       <strong>{blog.title}</strong>
+      <p>Author: {blog.author}</p>
       <Toggleable buttonLabel="Show Info">
-        <div>
-          <p>Author: {blog.author}</p>
+        <div className='more-info'>
           <p>URL: {blog.url}</p>
-          <p>Likes: {blog.likes}</p><button onClick={handleLike}> Like</button>
+          <p>Likes: {blog.likes}</p><button className='like-btn' onClick={handleLike}>Like</button>
           <p>User: {blog.user.name}</p>
           {isUserBlog && <button onClick={handleDelete}>Delete</button>}
         </div>

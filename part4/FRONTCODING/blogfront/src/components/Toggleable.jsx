@@ -9,6 +9,7 @@ const Togglable = forwardRef((props, ref) => {
   const showWhenVisible = { display: visible ? '' : 'none' }
 
   const toggleVisibility = () => {
+    console.log('visibility toggled')
     setVisible(!visible)
   }
 
@@ -21,9 +22,9 @@ const Togglable = forwardRef((props, ref) => {
   return (
     <div>
       <div style={hideWhenVisible}>
-        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
+        <button className='visible-btn' onClick={toggleVisibility}>{props.buttonLabel}</button>
       </div>
-      <div style={showWhenVisible}>
+      <div style={showWhenVisible} className="togglableContent">
         {props.children}
         <button onClick={toggleVisibility}>cancel</button>
       </div>
