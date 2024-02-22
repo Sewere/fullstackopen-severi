@@ -11,7 +11,7 @@ import '../index.css'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('') 
+  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const [showError, setShowError] = useState(false)
@@ -77,10 +77,10 @@ const App = () => {
 
   const addBlog = (blogObject) => {
     if (blogFormRef.current) {
-      blogFormRef.current.toggleVisibility();
+      blogFormRef.current.toggleVisibility()
     }
     blogService
-    .create(blogObject)
+      .create(blogObject)
       .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
         setErrorMessage(`A new blog: ${returnedBlog.title} by ${returnedBlog.author} added.`)
@@ -91,7 +91,6 @@ const App = () => {
         }, 5000)
       })
   }
-  
   const blogForm = () => (
     <Toggleable buttonLabel='New Blog' ref={blogFormRef}>
       <BlogForm createBlog={addBlog} />
@@ -102,9 +101,9 @@ const App = () => {
     blogs.sort
     return(
       <ul>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} updateBlogs={updateBlogs} currentUser={user}/>
-      )}
+        {blogs.map(blog =>
+          <Blog key={blog.id} blog={blog} updateBlogs={updateBlogs} currentUser={user}/>
+        )}
       </ul>
     )
   }
@@ -115,12 +114,12 @@ const App = () => {
         <h2>Login please</h2>
         {showError && <Notification message={errorMessage} />}
         <LoginForm
-            username={username}
-            password={password}
-            handleUsernameChange={({ target }) => setUsername(target.value)}
-            handlePasswordChange={({ target }) => setPassword(target.value)}
-            handleSubmit={handleLogin}
-          />
+          username={username}
+          password={password}
+          handleUsernameChange={({ target }) => setUsername(target.value)}
+          handlePasswordChange={({ target }) => setPassword(target.value)}
+          handleSubmit={handleLogin}
+        />
       </div>
     )
   }
@@ -151,15 +150,15 @@ const App = () => {
         />
       </Togglable>
       </div>
-     } 
+     }
 
       <div>
         <button onClick={() => setShowAll(!showAll)}>
           show {showAll ? 'important' : 'all' }
         </button>
-      </div>      
+      </div>
       <ul>
-        {notesToShow.map(note => 
+        {notesToShow.map(note =>
           <Note
             key={note.id}
             note={note}

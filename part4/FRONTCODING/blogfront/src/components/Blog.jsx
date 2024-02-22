@@ -33,7 +33,7 @@ const Blog = ({ blog, updateBlogs, currentUser }) => {
       console.error('Error deleting blog:', error)
     }
   }
-  
+
   const isUserBlog = currentUser && blog.user && currentUser.name === blog.user.name
 
   return (
@@ -52,4 +52,4 @@ const Blog = ({ blog, updateBlogs, currentUser }) => {
   )
 }
 
-export default Blog 
+export default Blog
