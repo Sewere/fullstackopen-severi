@@ -38,13 +38,13 @@ const Blog = ({ blog, updateBlogs, currentUser }) => {
   const isUserBlog = currentUser && blog.user && currentUser.name === blog.user.name
 
   return (
-    <div style={blogStyle}>
+    <div className='blog' style={blogStyle}>
       <strong>{blog.title}</strong>
       <p>Author: {blog.author}</p>
       <Toggleable buttonLabel="Show Info">
         <div className='more-info'>
           <p>URL: {blog.url}</p>
-          <p>Likes: {blog.likes}</p><button className='like-btn' onClick={handleLike}>Like</button>
+          <p>Likes: {blog.likes}</p><button id='like-btn' className='like-btn' onClick={handleLike}>Like</button>
           <p>User: {blog.user.name}</p>
           {isUserBlog && <button onClick={handleDelete}>Delete</button>}
         </div>

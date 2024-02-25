@@ -71,7 +71,7 @@ const BlogForm = ({ createBlog }) => {
           onChange={handleURLChange}
           placeholder='Add URL'
         />
-        <button type="submit">Save</button>
+        <button id='save-btn' type="submit">Save</button>
       </form>
     </div>
   )
