@@ -34,7 +34,7 @@ function AnecdoteList() {
           <div>{anecdote.content}</div>
           <div>
             Has votes: {anecdote.votes}
-            <button onClick={() => vote(anecdote.id)}>Vote</button>
+            <button onClick={() => vote(anecdote.id, anecdote.content)}>Vote</button>
           </div>
         </div>
       ))}
