@@ -6,8 +6,8 @@ import AddAnecdoteForm from './components/AddAnecdoteForm'
 import AnecdoteList from './components/AnecdoteList'
 import VisibilityFilter from './components/VisibilityFilter'
 import Notification from './components/Notification'
-import anecdoteService from './services/anecdotes'
-import { setAnecdotes } from './reducers/anecdoteReducer'
+//import anecdoteService from './services/anecdotes'
+import { initializeAnecdotes  } from './reducers/anecdoteReducer'
 import { useDispatch } from 'react-redux'
 
 //const store = createStore(reducer)
@@ -17,8 +17,7 @@ const App = () => {
   //const dispatch = useDispatch()
   const dispatch = useDispatch()
   useEffect(() => {
-    anecdoteService
-    .getAll().then(dotes => dispatch(setAnecdotes(dotes)))
+    dispatch(initializeAnecdotes())
   }, [])
 
   return (

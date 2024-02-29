@@ -4,8 +4,8 @@ import { Provider } from 'react-redux'
 //import { configureStore } from '@reduxjs/toolkit'
 import store from './store'
 import App from './App'
-import anecdoteService from './services/anecdotes'
-import { setAnecdotes } from './reducers/anecdoteReducer'
+//import anecdoteService from './services/anecdotes'
+//import { setAnecdotes } from './reducers/anecdoteReducer'
 
 /*
 const store = configureStore({
@@ -22,9 +22,10 @@ const reducer = combineReducers({
 
 const store = createStore(reducer)*/
 
+/*
 anecdoteService.getAll().then(notes =>
   store.dispatch(setAnecdotes(notes))
-)
+)*/
 
 console.log(store.getState())
 
