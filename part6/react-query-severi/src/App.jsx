@@ -3,15 +3,19 @@ import Notification from './components/Notification'
 import { useQuery, useMutation, useQueryClient  } from '@tanstack/react-query'
 import axios from 'axios'
 import { getAnecdotes, createAnecdote, updateAnecdote } from './requests'
+import { useNotification } from './components/NotificationContext'
 
 const App = () => {
 
   const queryClient = useQueryClient()
+  const { dispatch } = useNotification()
 
   const newAnecdoteMutation = useMutation({
     mutationFn: createAnecdote,
     onSuccess: (newAnecdote) => {
+      console.log("HERE", newAnecdote)
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+      dispatch({ type: 'SET_NOTIFICATION', payload: `Anecdote: "${newAnecdote.content}" created!` })
       //manually updating
       //const notes = queryClient.getQueryData(['notes'])
       //queryClient.setQueryData(['notes'], notes.concat(newNote))
@@ -37,6 +41,7 @@ const App = () => {
   const handleVote = (anecdote) => {
     console.log('voteed for ', anecdote)
     updateAnecdoteMutation.mutate({...anecdote, votes: anecdote.votes + 1})
+    dispatch({ type: 'SET_NOTIFICATION', payload: `Voted for: "${anecdote.content}"!` })
   }
 
   const addAnecdote = async (event) => {
@@ -75,7 +80,7 @@ const App = () => {
           </div>
           <div>
             has {anecdote.votes}
-            <button onClick={() => handleVote(anecdote)}>vote</button>
+            <button onClick={() => handleVote(anecdote)}>Vote</button>
           </div>
         </div>
       )}
