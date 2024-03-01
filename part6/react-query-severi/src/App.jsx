@@ -19,6 +19,9 @@ const App = () => {
       //manually updating
       //const notes = queryClient.getQueryData(['notes'])
       //queryClient.setQueryData(['notes'], notes.concat(newNote))
+    },
+    onError: (error) => {
+      dispatch({ type: 'SET_NOTIFICATION', payload: `Anecdote was too short!` })
     }
   })
 
