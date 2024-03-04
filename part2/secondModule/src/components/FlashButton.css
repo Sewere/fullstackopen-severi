@@ -1,0 +1,25 @@
+.flash-button {
+  background: #3498db; /* Default color when not hovered */
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.flash-button:hover {
+  background: linear-gradient(to right, #e74c3c, #f39c12, #2ecc71, #3498db, #e74c3c); /* Added an extra stop for smooth transition */
+  background-size: 500% 100%;
+  animation: rainbowAnimation 15s linear infinite;
+}
+
+@keyframes rainbowAnimation {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: -100% 50%;
+  }
+}

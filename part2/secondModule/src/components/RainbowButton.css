@@ -1,0 +1,28 @@
+.rainbow-button {
+  background-color: #3498db;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.flash {
+  animation: flashAnimation 1s ease infinite;
+}
+
+@keyframes flashAnimation {
+  0%, 100% {
+    background-color: #e74c3c;
+  }
+  25% {
+    background-color: #f39c12;
+  }
+  50% {
+    background-color: #2ecc71;
+  }
+  75% {
+    background-color: #3498db;
+  }
+}
