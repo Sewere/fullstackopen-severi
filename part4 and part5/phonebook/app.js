@@ -28,6 +28,7 @@ app.use(middleware.requestLogger)
 app.use('/api/persons', personRouter)
 
 app.use(middleware.unknownEndpoint)
+//LAST MIDDLEWARE
 app.use(middleware.errorHandler)
 
 module.exports = app

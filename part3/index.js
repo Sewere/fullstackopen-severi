@@ -95,7 +95,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     request.params.id,
     { $set: updatedFields },
     { new: true, runValidators: true, context: 'query' }
-    )
+  )
     .then(updatedPerson => {
       if (updatedPerson) {
         response.json(updatedPerson)
@@ -156,6 +156,6 @@ const errorHandler = (error, request, response, next) => {
 app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
-  app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

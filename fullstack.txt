@@ -1,0 +1,24 @@
+PART2
+Communicating with server and basic parts, styles
+
+PART3
+Programming a server with NodeJS and Express, fly.io
+- error handler middleware
+MONGODB_URI="mongodb+srv://severipalikko:kopiokolo@clustersimppy.v1dgsk0.mongodb.net/?retryWrites=true&w=majority" npm run dev
+
+PART4
+Testing Express servers, user administration
+
+PART5
+Testing React apps
+- login and token
+- JEst & Cypress
+- npm run cypress:open
+
+PART6
+Advanced state management
+
+PART7
+React router, custom hooks, styling app with CSS and webpack
+PART8
+GraphQL
