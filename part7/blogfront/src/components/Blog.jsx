@@ -1,8 +1,12 @@
 import React from "react";
 import Toggleable from "./Toggleable";
 import blogService from "../services/blogs";
+import { useDispatch, useSelector  } from "react-redux";
+import { removeBlog, likeBlogById  } from '../reducers/blogReducer';
 
-const Blog = ({ blog, updateBlogs, currentUser }) => {
+const Blog = ({ blog, currentUser }) => {
+  const dispatch = useDispatch();
+
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -11,6 +15,14 @@ const Blog = ({ blog, updateBlogs, currentUser }) => {
     marginBottom: 5,
   };
 
+  const handleDelete = () => {
+    dispatch(removeBlog(blog.id));
+  };
+
+  const handleLike = () => {
+    dispatch(likeBlogById(blog.id));
+  };
+  /*
   const handleLike = async () => {
     console.log("LIKE CLICKED");
     try {
@@ -19,7 +31,7 @@ const Blog = ({ blog, updateBlogs, currentUser }) => {
         modifiedBlog.id,
         modifiedBlog,
       );
-      updateBlogs();
+      //updateBlogs();
     } catch (error) {
       console.error("Error liking blog:", error);
     }
@@ -34,11 +46,11 @@ const Blog = ({ blog, updateBlogs, currentUser }) => {
         return;
       }
       await blogService.destroy(blog.id);
-      updateBlogs();
+      //updateBlogs();
     } catch (error) {
       console.error("Error deleting blog:", error);
     }
-  };
+  };*/
 
   const isUserBlog =
     currentUser && blog.user && currentUser.name === blog.user.name;

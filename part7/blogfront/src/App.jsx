@@ -7,25 +7,31 @@ import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
 import "../index.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector  } from "react-redux";
 import { setNotificationWithDuration } from "./reducers/notificationsReducer";
+import { fetchBlogs, createBlog, deleteBlog, likeBlog  } from './reducers/blogReducer';
+import { loginUser, clearUser } from './reducers/userReducer';
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
+  //const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
+  //const [user, setUser] = useState(null);
+  const user = useSelector(state => state.user.user);
   const [errorMessage, setErrorMessage] = useState(null);
   const [showError, setShowError] = useState(false);
   const [loginVisible, setLoginVisible] = useState(false);
   const blogFormRef = useRef();
+  const blogs = useSelector(state => state.blog);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    updateBlogs();
-  }, []);
+    //updateBlogs();
+    dispatch(fetchBlogs());
+    //const user = loginService.login(username, password);
+  }, [dispatch]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     //window.localStorage.removeItem('loggedNoteappUser')
     const loggedUserJSON = window.localStorage.getItem("loggedBlogUser");
     if (loggedUserJSON) {
@@ -33,8 +39,9 @@ const App = () => {
       setUser(user);
       blogService.setToken(user.token);
     }
-  }, []);
+  }, []);*/
 
+  /*
   const updateBlogs = async () => {
     try {
       const fetchedBlogs = await blogService.getAll();
@@ -60,14 +67,24 @@ const App = () => {
     } catch (exception) {
       dispatch(setNotificationWithDuration(`Wrong credentials!`, 5000));
     }
+  };*/
+  const handleLogin = async () => {
+    //const user = await loginService.login(username, password);
+    dispatch(loginUser(username, password));
+    setUsername("");
+    setPassword("");
   };
 
   const handleLogout = () => {
-    window.localStorage.removeItem("loggedBlogUser");
+    //window.localStorage.removeItem("loggedBlogUser");
     dispatch(setNotificationWithDuration(`Logged out.`, 5000));
-    setUser(null);
+    dispatch(clearUser());
   };
 
+  const addBlog = (blogObject) => {
+    dispatch(createBlog(blogObject));
+  };
+  /*
   const addBlog = (blogObject) => {
     if (blogFormRef.current) {
       blogFormRef.current.toggleVisibility();
@@ -81,7 +98,7 @@ const App = () => {
         ),
       );
     });
-  };
+  };*/
   const blogForm = () => (
     <Toggleable buttonLabel="New Blog" ref={blogFormRef}>
       <BlogForm createBlog={addBlog} />
@@ -89,6 +106,10 @@ const App = () => {
   );
 
   const showBlogs = () => {
+    if (!blogs) {
+      return <p>Loading blogs...</p>;
+    }
+    //const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
     blogs.sort;
     return (
       <ul>
@@ -96,7 +117,7 @@ const App = () => {
           <Blog
             key={blog.id}
             blog={blog}
-            updateBlogs={updateBlogs}
+            //updateBlogs={updateBlogs}
             currentUser={user}
           />
         ))}

@@ -4,7 +4,7 @@ const User = require('../models/user')
 
 usersRouter.post('/', async (request, response) => {
   const { username, name, password } = request.body
-
+  console.log("IN BACK")
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(password, saltRounds)
 
