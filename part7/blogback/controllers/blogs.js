@@ -23,7 +23,7 @@ router.get('/api/blogs', async (request, response, next) => {
 
 router.post('/api/blogs', async (request, response, next) => {
   try {
-    const decodedToken = jwt.verify(getTokenFrom(request), "Seppo"/*process.env.SECRET*/)
+    const decodedToken = jwt.verify(getTokenFrom(request), "SEPPO"/*process.env.SECRET*/)
     if (!decodedToken.id) {
       return response.status(401).json({ error: 'token invalid' })
     }

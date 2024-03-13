@@ -10,14 +10,20 @@ import "../index.css";
 import { useDispatch, useSelector  } from "react-redux";
 import { setNotificationWithDuration } from "./reducers/notificationsReducer";
 import { fetchBlogs, createBlog, deleteBlog, likeBlog  } from './reducers/blogReducer';
-import { loginUser, clearUser } from './reducers/userReducer';
+import { login, logout, getAllUsers } from './reducers/userReducer';
+import UserList from './components/UserList';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import UserBlogs from "./components/UserBlogs";
 
 const App = () => {
   //const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   //const [user, setUser] = useState(null);
-  const user = useSelector(state => state.user.user);
+  //const user = useSelector(({ user }) => {
+  //  return user
+  //})
+  const user = useSelector(state => state.user.currentUser);
   const [errorMessage, setErrorMessage] = useState(null);
   const [showError, setShowError] = useState(false);
   const [loginVisible, setLoginVisible] = useState(false);
@@ -68,17 +74,25 @@ const App = () => {
       dispatch(setNotificationWithDuration(`Wrong credentials!`, 5000));
     }
   };*/
-  const handleLogin = async () => {
-    //const user = await loginService.login(username, password);
-    dispatch(loginUser(username, password));
-    setUsername("");
-    setPassword("");
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    try {
+      //const useri = await loginService.login(username, password);
+      console.log(username)
+      console.log(password)
+      dispatch(login(username, password));
+      setUsername("");
+      setPassword("");
+    } catch (error) {
+      console.error('Error logging in:', error);
+      dispatch(setNotificationWithDuration(`Wrong credentials!`, 5000));
+    }
   };
 
   const handleLogout = () => {
     //window.localStorage.removeItem("loggedBlogUser");
     dispatch(setNotificationWithDuration(`Logged out.`, 5000));
-    dispatch(clearUser());
+    dispatch(logout());
   };
 
   const addBlog = (blogObject) => {
@@ -110,7 +124,7 @@ const App = () => {
       return <p>Loading blogs...</p>;
     }
     //const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
-    blogs.sort;
+    //blogs.sort;
     return (
       <ul>
         {blogs.map((blog) => (
@@ -124,34 +138,41 @@ const App = () => {
       </ul>
     );
   };
+  //console.log("GEtting datasdsds", user)
 
-  if (user === null) {
-    return (
-      <div>
-        <h2>Login please</h2>
-        {showError && <Notification message={errorMessage} />}
-        <LoginForm
-          username={username}
-          password={password}
-          handleUsernameChange={({ target }) => setUsername(target.value)}
-          handlePasswordChange={({ target }) => setPassword(target.value)}
-          handleSubmit={handleLogin}
-        />
-      </div>
-    );
-  }
   return (
-    <div>
-      <h2>blogs</h2>
-      <Notification />
+    <Router>
       <div>
-        <p>{user.name} logged in</p>
+        <h2>Blog App</h2>
+        <Notification />
+        {user === null ? (
+          <div>
+            <h3>Login</h3>
+            <LoginForm
+              handleSubmit={handleLogin}
+              username={username}
+              password={password}
+              handleUsernameChange={({ target }) => setUsername(target.value)}
+              handlePasswordChange={({ target }) => setPassword(target.value)}
+            />
+
+          </div>
+        ) : (
+          <div>
+            <p>{user.username} logged in</p>
+            <button type="button" onClick={handleLogout}>Logout</button>
+            {blogForm()}
+            {showBlogs()}
+            <UserList />
+            <Routes>
+              <Route path="/users/:userId" component={UserBlogs} />
+            </Routes>
+          </div>
+        )}
       </div>
-      {showBlogs()}
-      <button onClick={handleLogout}>Logout</button>
-      {blogForm()}
-    </div>
+    </Router>
   );
 };
+
 
 export default App;

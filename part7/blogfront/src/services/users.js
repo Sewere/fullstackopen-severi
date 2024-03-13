@@ -1,9 +1,11 @@
 import axios from "axios";
-const baseUrl = "/api/login";
+const baseUrl = "/api/users";
 
-const login = async (credentials) => {
+
+const getUsers = async () => {
   try {
-    const response = await axios.post(baseUrl, credentials);
+    console.log("GEtting data")
+    const response = await axios.get(baseUrl);
     console.log(response.data)
     return response.data;
   } catch (error) {
@@ -13,6 +15,6 @@ const login = async (credentials) => {
       console.error("Error during login:", error);
     }
   }
-};
+}
 
-export default { login };
+export default { getUsers };

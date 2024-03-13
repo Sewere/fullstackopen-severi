@@ -45,14 +45,14 @@ const App = () => {
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const user = await loginService.login({
+      const useri = await loginService.login({
         username, password,
       })
       window.localStorage.setItem(
-        'loggedBlogUser', JSON.stringify(user)
+        'loggedBlogUser', JSON.stringify(useri)
       )
-      blogService.setToken(user.token)
-      setUser(user)
+      blogService.setToken(useri.token)
+      //dispatch(setUser(user))
       setUsername('')
       setPassword('')
     } catch (exception) {

@@ -43,6 +43,17 @@ export const fetchBlogs = () => {
   };
 };
 
+export const fetchBlogsById = (id) => {
+  return async (dispatch) => {
+    try {
+      const fetchedBlogs = await blogService.getAll();
+      dispatch(setBlogs(fetchedBlogs));
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+    }
+  };
+};
+
 export const createBlog = (blogObject) => {
   return async (dispatch) => {
     try {
@@ -68,7 +79,7 @@ export const removeBlog = (id) => {
 export const likeBlogById = (id) => {
   return async (dispatch) => {
     try {
-      await blogService.update(id, { likes: 1 }); // Assuming likes increment by 1
+      await blogService.update(id, { likes: 1 });
       dispatch(likeBlog(id));
     } catch (error) {
       console.error('Error liking blog:', error);

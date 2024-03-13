@@ -23,14 +23,22 @@ mongoose.connect(urli)
     logger.error('error connecting to MongoDB:', error.message)
   })
 
-app.use(cors())
+const corsOptions = {
+  origin: '*',
+  methods: 'GET,PUT,POST,DELETE,UPDATE',
+  allowedHeaders: 'Content-Type,Authorization',
+}
+
+app.use(cors(corsOptions));
+  
+//app.use(cors())
 app.use(express.json())
 app.use(express.static('dist'))
 app.use(middleware.requestLogger)
 
 app.use('/', blogRouter)
-app.use('/api/users', usersRouter)
-app.use('/api/login', loginRouter)
+app.use('/', usersRouter)
+app.use('/', loginRouter)
 
 //npm run start:test
 if (process.env.NODE_ENV === 'test') {
