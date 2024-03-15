@@ -95,15 +95,11 @@ let books = [
   },
 ]
 
-/*
-  you can remove the placeholder query once your first one has been implemented 
-*/
-
 const typeDefs = `
   type Query {
     bookCount: Int!
     authorCount: Int!
-    allBooks: [Book!]
+    allBooks(author: String, genre: String): [Book!]
     allAuthors: [Author!]!
   }
 
@@ -121,14 +117,41 @@ const typeDefs = `
     id: String!
     genres: [String!]!
   }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book!
+
+    editAuthor(
+      name: String!
+      setBornTo: Int!
+    ): Author
+  }
+  
 `
 
 const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
-    allBooks: () => books,
-    allAuthors: () => {
+    allBooks: (root, args) => {
+      if (!args.author && !args.genre) {
+        return books;
+      }
+      let filteredBooks = [...books];
+      if (args.author) {
+        filteredBooks = filteredBooks.filter(book => book.author === args.author);
+      }
+      if (args.genre) {
+        filteredBooks = filteredBooks.filter(book => book.genres.includes(args.genre));
+      }
+      return filteredBooks;
+    },
+    allAuthors: (root, args) => {
       return authors.map(author => {
         const bookCount = books.filter(book => book.author === author.name).length;
         return {
@@ -137,7 +160,39 @@ const resolvers = {
         };
       });
     },
-  }
+  },
+  Mutation: {
+    addBook: (root, args) => {
+      let authorExists = authors.find(author => author.name === args.author);
+      if (!authorExists) {
+        authorExists = {
+          name: args.author,
+          id: uuid(),
+        };
+        authors.push(authorExists);
+      }
+      const newBook = {
+        title: args.title,
+        author: args.author,
+        published: args.published,
+        genres: args.genres,
+        id: uuid(),
+      };
+      books.push(newBook);
+      return newBook;
+    },
+    editAuthor: (root, args) => {
+      let author = authors.find(author => author.name === args.name);
+      console.log("löytkö?", author)
+      if (!author) {
+        return null
+      }
+  
+      const updatedAuthor = { ...author, born: args.setBornTo }
+      authors = authors.map(p => p.name === args.name ? updatedAuthor : p)
+      return updatedAuthor
+    }  
+  },
 }
 
 const server = new ApolloServer({
