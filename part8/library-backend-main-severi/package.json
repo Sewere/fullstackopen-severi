@@ -1,5 +1,5 @@
 {
-  "name": "graphql_learning",
+  "name": "library-backend-main-severi",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo/client": "^3.9.7",
     "@apollo/server": "^4.10.1",
     "graphql": "^16.8.1"
   }

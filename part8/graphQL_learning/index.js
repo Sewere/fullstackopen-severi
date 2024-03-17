@@ -26,11 +26,6 @@ let persons = [
   },
 ]
 
-enum YesNo {
-  YES,
-  NO
-}
-
 const typeDefs = `
   type Address {
     street: String!
@@ -43,6 +38,8 @@ const typeDefs = `
     address: Address!
     id: ID!
   }
+
+  enum YesNo {  YES  NO}
 
   type Query {
     personCount: Int!
