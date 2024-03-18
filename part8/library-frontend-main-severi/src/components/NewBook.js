@@ -1,13 +1,22 @@
 import { useState } from 'react'
-import { useMutation } from '@apollo/client'
-import { ALL_BOOKS, CREATE_BOOK, ALL_AUTHORS } from '../queries'
+import { useMutation, useQuery } from '@apollo/client'
+import { ALL_BOOKS, CREATE_BOOK, FIND_AUTHOR, CREATE_AUTHOR, ALL_AUTHORS } from '../queries'
 
 const NewBook = ({ show, setError }) => {
   const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
+  const [authorName, setAuthorName] = useState('');
+  const [authorBorn, setAuthorBorn] = useState('');
+  const [authorBookCount, setAuthorBookCount] = useState(0)
+  const { loading, error, data: authorData } = useQuery(FIND_AUTHOR, {
+      variables: { name: authorName },
+      onError: (error) => {
+        // Handle error if needed
+        console.error('Error finding author:', error.message);
+      }
+    });
 
   const [createBook] = useMutation(CREATE_BOOK, {
     refetchQueries: [{ query: ALL_BOOKS }],
@@ -16,18 +25,44 @@ const NewBook = ({ show, setError }) => {
       setError(messages)
     }
   })
+  const [createAuthor] = useMutation(CREATE_AUTHOR, {
+    refetchQueries: [{ query: ALL_AUTHORS }],
+    onError: (error) => {
+      const messages = error.graphQLErrors.map(e => e.message).join('\n')
+      setError(messages)
+    }
+  })
 
   const submit = async (event) => {
     event.preventDefault()
-
+    console.log("LEGOO")
     try {
+      let author;
+      if (!error) {
+        author = authorData
+      } else {
+        const newAuthor = await createAuthor({
+          variables: {
+            name: authorName,
+            born: authorBorn,
+            bookcount: authorBookCount
+          }
+      })
+      author = newAuthor.data.addAuthor;
+    }
       await createBook({
-        variables: { title, author, published, genres }
+        variables: {
+          title,
+          author: author._id,
+          published,
+          genres
+        }
       })
 
       // Reset form fields after successful submission
       setTitle('')
-      setAuthor('')
+      setAuthorName('')
+      setAuthorBorn('')
       setPublished('')
       setGenres([])
       setGenre('')
@@ -61,10 +96,18 @@ const NewBook = ({ show, setError }) => {
           />
         </div>
         <div>
-          Author
+          Author Name
           <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
+            value={authorName}
+            onChange={({ target }) => setAuthorName(target.value)}
+            required
+          />
+        </div>
+        <div>
+          Author Born
+          <input
+            value={authorBorn}
+            onChange={({ target }) => setAuthorBorn(target.value)}
             required
           />
         </div>
@@ -90,7 +133,7 @@ const NewBook = ({ show, setError }) => {
         <button type="submit">Create Book</button>
       </form>
     </div>
-  )
-}
+  );
+};
 
 export default NewBook
