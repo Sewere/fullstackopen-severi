@@ -9,6 +9,7 @@ export const ALL_BOOKS = gql`
         born
       }
       published
+      genres
     }
   }
 `
@@ -90,3 +91,19 @@ export const EDIT_AUTHOR = gql`
   }
 `
 
+export const LOGIN = gql`
+  mutation login($username: String!, $password: String!) {
+    login(username: $username, password: $password)  {
+      value
+    }
+  }
+`
+
+export const CREATE_USER = gql`
+  mutation createUser($username: String!, $password: String!, $favoriteGenre: String!) {
+    createUser(username: $username, password: $password, favoriteGenre: $favoriteGenre) {
+      username
+      favoriteGenre
+    }
+  }
+`;

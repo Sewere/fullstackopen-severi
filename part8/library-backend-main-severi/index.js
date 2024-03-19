@@ -1,4 +1,5 @@
 const { ApolloServer } = require('@apollo/server')
+const { AuthenticationError } = require('apollo-server-errors');
 const { startStandaloneServer } = require('@apollo/server/standalone')
 const { v1: uuid } = require('uuid')
 const { GraphQLError } = require('graphql')
@@ -6,6 +7,9 @@ const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 const Author = require('./models/author')
 const Book = require('./models/book')
+const User = require('./models/user')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 require('dotenv').config()
 
@@ -21,33 +25,13 @@ mongoose.connect(MONGODB_URI)
     console.log('error connection to MongoDB:', error.message)
   })
 
-let books = [
-  { title: "Pride and Prejudice", author: "Jane Austen", published: "1813", genre: "Romance" },
-  { title: "Great Expectations", author: "Charles Dickens", published: "1861", genre: "Novel" },
-  { title: "The Old Man and the Sea", author: "Ernest Hemingway", published: "1952", genre: "Fiction" },
-  { title: "To the Lighthouse", author: "Virginia Woolf", published: "1927", genre: "Modernist" },
-  { title: "War and Peace", author: "Leo Tolstoy", published: "1869", genre: "Historical Fiction" },
-  { title: "Crime and Punishment", author: "Fyodor Dostoevsky", published: "1866", genre: "Psychological Fiction" },
-  { title: "The Adventures of Huckleberry Finn", author: "Mark Twain", published: "1884", genre: "Adventure" },
-  { title: "Harry Potter and the Philosopher's Stone", author: "J.K. Rowling", published: "1997", genre: "Fantasy" },
-  { title: "1984", author: "George Orwell", published: "1949", genre: "Dystopian Fiction" },
-  { title: "Murder on the Orient Express", author: "Agatha Christie", published: "1934", genre: "Mystery" }
-]
-
-let authors = [
-  { name: "Jane Austen", born: "1775-12-16", bookcount: 6 },
-  { name: "Charles Dickens", born: "1812-02-07", bookcount: 15 },
-  { name: "Ernest Hemingway", born: "1899-07-21", bookcount: 10 },
-  { name: "Virginia Woolf", born: "1882-01-25", bookcount: 9 },
-  { name: "Leo Tolstoy", born: "1828-09-09", bookcount: 10 },
-  { name: "Fyodor Dostoevsky", born: "1821-11-11", bookcount: 11 },
-  { name: "Mark Twain", born: "1835-11-30", bookcount: 9 },
-  { name: "J.K. Rowling", born: "1965-07-31", bookcount: 7 },
-  { name: "George Orwell", born: "1903-06-25", bookcount: 6 },
-  { name: "Agatha Christie", born: "1890-09-15", bookcount: 66 }
-]
-
 const typeDefs = `
+  type User {
+    username: String!
+    favoriteGenre: String!
+    id: ID!
+  }
+
   type Token {
     value: String!
   }
@@ -56,7 +40,7 @@ const typeDefs = `
     title: String!
     author: Author!
     published: String!
-    genres: [String!]
+    genres: [String!]!
     id: ID!
   }
 
@@ -67,17 +51,12 @@ const typeDefs = `
     bookcount: Int
   }
 
- input AuthorInput {
-     name: String!
-     born: String
-     bookcount: Int
-  }
-
   type Query {
     allBooks: [Book!]!
     findBook(title: String!): Book
     allAuthors: [Author!]!
     findAuthor(name: String!): Author
+    me: User
   }
 
   type Mutation {
@@ -98,12 +77,32 @@ const typeDefs = `
       name: String!
       newBorn: String!
     ): Author
+
+    createUser(
+      username: String!
+      password: String!
+      favoriteGenre: String!
+    ): User
+
+    login(
+      username: String!
+      password: String!
+    ): Token
   }
 `
 
 const resolvers = {
   Query: {
-    allBooks: async () => Book.find({}),
+    allBooks: async () => {
+      const books = await Book.find({})
+      const updatedBooks = books.map(book => {
+        if (!book.genres) {
+          book.genres = []
+        }
+        return book
+      })
+      return updatedBooks
+    },
     findBook: async (root, { title }) => Book.findOne({title: title}),
     allAuthors: async () => {
       return Author.find({})
@@ -122,8 +121,11 @@ const resolvers = {
     }
   },
   Mutation: {
-    addBook: async (root, args) => {
-      console.log("INside addBook")
+    addBook: async (root, args, context) => {
+      console.log("Inside addBook", context)
+      if (!context.token) {
+        throw new AuthenticationError('Authentication required');
+      }
       let author = await Author.findOne({ name: args.author })
       console.log(args.author)
       //const authorId = new mongoose.Types.ObjectId(args.author)
@@ -138,11 +140,17 @@ const resolvers = {
       return book.save()
     },
     addAuthor: (root, args) => {
+      if (!context.token) {
+        throw new AuthenticationError('Authentication required');
+      }
       const author = new Author({ ...args })
       //authors.push(author)
       return author.save()
     },
-	  editAuthor: async (root, args) => {
+	  editAuthor: async (root, args, context) => {
+      if (!context.token) {
+        throw new AuthenticationError('Authentication required');
+      }
 	    const { name, newBorn } = args
       //const author = authors.find(author => author.name === name)
       const author = await Author.findOne({name: name})
@@ -153,8 +161,51 @@ const resolvers = {
       //authors = authors.map(a => a.name === name ? updatedAuthor : a)
       author.born = newBorn
       return author.save()
-	  }
+	  },
+    login: async (root, { username, password }) => {
+      const user = await User.findOne({ username })
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      const passwordCorrect = await bcrypt.compare(password, user.passwordHash)
+      if (!passwordCorrect) {
+        throw new Error('Invalid password')
+      }
+
+      const userForToken = {
+        username: user.username,
+        id: user._id,
+      }
+
+      return {
+        value: jwt.sign(userForToken, process.env.JWT_SECRET),
+      }
+    },
+    createUser: async (root, { username, password, favoriteGenre }) => {
+      const saltRounds = 10
+      const passwordHash = await bcrypt.hash(password, saltRounds)
+
+      const user = new User({
+        username,
+        passwordHash,
+        favoriteGenre,
+      })
+
+      try {
+        await user.save()
+      } catch (error) {
+        throw new Error('Username already exists')
+      }
+
+      return user
+    },
   }
+}
+
+const GetAccessToken = function (request){
+  const token = (request.headers.authorization || '').replace('BEARER ', '');
+  return token;
 }
 
 const server = new ApolloServer({
@@ -164,6 +215,21 @@ const server = new ApolloServer({
 
 startStandaloneServer(server, {
   listen: { port: 4000 },
+  context: async ( {req} ) => {
+    console.log("HIIOHOI",req)
+    return {
+      token: GetAccessToken(req)
+    }
+    /*
+    const token = req ? req.headers.authorization : null
+    try {
+      const decodedToken = jwt.verify(token.substring(7), process.env.JWT_SECRET);
+      const loggedUser = await User.findOne({ username: decodedToken.username })
+      return { loggedUser }
+    } catch (error) {
+      return { loggedUser: null, token };
+    }
+  */}
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`)
 })

@@ -17,13 +17,23 @@ const NewBook = ({ show, setError }) => {
     enabled: false
   })*/
 
-  const [createBook] = useMutation(CREATE_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }],
+
+  const [ createBook ] = useMutation(CREATE_BOOK, {
+    update: (cache, response) => {
+      cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
+        return {
+          allBooks: allBooks.concat(response.data.addBook),
+        }
+      })
+    },
     onError: (error) => {
       const messages = error.graphQLErrors.map(e => e.message).join('\n')
       setError(messages)
-    }
-  })/*
+    },
+  })
+
+    //context: { headers: { authorization: token } }
+  /*
   const [createAuthor] = useMutation(CREATE_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
     onError: (error) => {
@@ -49,13 +59,19 @@ const NewBook = ({ show, setError }) => {
       author = newAuthor.data.addAuthor;
       console.log(author)
       console.log(newAuthor)*/
+      //let token = localStorage.getItem('severi-user-token')
       await createBook({
         variables: {
           title,
           author: author,
           published,
           genres
-        }
+        }/*,
+        context: {
+          headers: {
+            authorization: `Bearer ${token}`
+          }
+        }*/
       })
 
       // Reset form fields after successful submission
