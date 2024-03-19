@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client'
 import { LOGIN } from '../queries'
 import CreateUserForm from './CreateUserForm'
 
-const LoginForm = ({ setError, setToken }) => {
+const LoginForm = ({ setLoggedUser, setError, setToken }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -26,14 +26,13 @@ const LoginForm = ({ setError, setToken }) => {
     if ( result.data ) {
       const token = result.data.login.value
       setToken(token)
-      console.log("tokeni",token)
       localStorage.setItem('severi-user-token', token)
     }
   }, [result.data])
 
   const submit = async (event) => {
     event.preventDefault()
-
+    setLoggedUser(username)
     login({ variables: { username, password } })
   }
 

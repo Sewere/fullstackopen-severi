@@ -5,6 +5,7 @@ import Books from './components/Books'
 import NewBook from './components/NewBook'
 import AuthorForm from './components/AuthorForm'
 import LoginForm from './components/LoginForm'
+import FavoriteGenre from './components/FavoriteGenre'
 
 const Notify = ({errorMessage}) => {
   if ( !errorMessage ) {
@@ -21,6 +22,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [page, setPage] = useState('authors')
   const [token, setToken] = useState(null)
+  const [username, setUsername] = useState('')
   const client = useApolloClient()
 
   const notify = (message) => {
@@ -40,7 +42,7 @@ const App = () => {
     return (
     <>
       <Notify errorMessage={errorMessage} />
-      <LoginForm setToken={setToken} setError={notify} />
+      <LoginForm setLoggedUser={setUsername} setToken={setToken} setError={notify} />
     </>
     )
   }
@@ -54,6 +56,7 @@ const App = () => {
         <button onClick={logout}>logout</button>
       </div>
       <Notify errorMessage={errorMessage} />
+      <FavoriteGenre username={username}/>
 
       <Authors show={page === 'authors'} />
 

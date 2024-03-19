@@ -27,6 +27,15 @@ export const FIND_BOOK = gql`
   }
 `
 
+export const FIND_USER = gql`
+  query findUserByName($nameToSearch: String!) {
+    findUser(username: $nameToSearch) {
+      username
+      favoriteGenre
+    }
+  }
+`
+
 export const ALL_AUTHORS = gql`
   query {
     allAuthors {

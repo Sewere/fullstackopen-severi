@@ -57,6 +57,7 @@ const typeDefs = `
     allAuthors: [Author!]!
     findAuthor(name: String!): Author
     me: User
+    findUser(username: String!): User
   }
 
   type Mutation {
@@ -107,7 +108,11 @@ const resolvers = {
     allAuthors: async () => {
       return Author.find({})
     },
-    findAuthor: async (root, { name }) => Author.findOne({name: name})
+    findAuthor: async (root, { name }) => Author.findOne({name: name}),
+    findUser: async (root, { username }) => {
+      console.log(username)
+      return User.findOne({username: username})
+    }
   },
   Book: {
     author: async (root) => {
@@ -216,7 +221,6 @@ const server = new ApolloServer({
 startStandaloneServer(server, {
   listen: { port: 4000 },
   context: async ( {req} ) => {
-    console.log("HIIOHOI",req)
     return {
       token: GetAccessToken(req)
     }
