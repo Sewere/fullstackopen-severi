@@ -48,23 +48,29 @@ let authors = [
 ]
 
 const typeDefs = `
+  type Token {
+    value: String!
+  }
+
   type Book {
     title: String!
     author: Author!
     published: String!
-    genres: String!
+    genres: [String!]
+    id: ID!
   }
 
   type Author {
+    id: ID!
     name: String!
-    born: String!
-    bookcount: Int!
+    born: String
+    bookcount: Int
   }
 
-  input AuthorInput {
-    name: String!
-    born: String!
-    bookcount: Int!
+ input AuthorInput {
+     name: String!
+     born: String
+     bookcount: Int
   }
 
   type Query {
@@ -105,24 +111,30 @@ const resolvers = {
     findAuthor: async (root, { name }) => Author.findOne({name: name})
   },
   Book: {
-    author: (root) => {
-      return {
-        name: root.name,
-        born: root.born,
-        bookcount: root.bookcount
+    author: async (root) => {
+      try {
+        const author = await Author.findById(root.author)
+        return author
+      } catch (error) {
+        console.error('Error fetching author:', error)
+        throw new Error('Failed to fetch author')
       }
     }
   },
   Mutation: {
     addBook: async (root, args) => {
       console.log("INside addBook")
-      let author = await Author.findOne({ name: args.author.name })
+      let author = await Author.findOne({ name: args.author })
+      console.log(args.author)
+      //const authorId = new mongoose.Types.ObjectId(args.author)
+      //console.log("authori id", authorId)
       if (!author) {
         console.log("No author of that name found, creating it now...")
         author = new Author({ name: args.author, born: 0 })
         await author.save()
       }
       const book = new Book({ ...args, author: author._id })
+      console.log("Made some stuff", book)
       return book.save()
     },
     addAuthor: (root, args) => {

@@ -8,7 +8,9 @@ const AuthorForm = ({ setError }) => {
   const [selectedAuthor, setSelectedAuthor] = useState(null)
   const [newBorn, setNewBorn] = useState('')
 
-  const { loading, error, data } = useQuery(ALL_AUTHORS)
+  const { loading, error, author_data } = useQuery(ALL_AUTHORS)
+
+  let authors
 
   const [changeAuthorBorn, result] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
@@ -38,7 +40,11 @@ const AuthorForm = ({ setError }) => {
     }
   }, [result.data])
 
-  const authorOptions = data ? data.allAuthors.map(author => ({
+  if (!error) {
+    authors = JSON.stringify(author_data)
+  }
+
+  const authorOptions = authors ? authors.allAuthors.map(author => ({
     value: author.name,
     label: author.name
   })) : [];

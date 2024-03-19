@@ -10,7 +10,7 @@ const schema = new mongoose.Schema({
     minlength: 5
   },
   published: {
-    type: Number,
+    type: String,
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,

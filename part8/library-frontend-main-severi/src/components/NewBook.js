@@ -7,16 +7,15 @@ const NewBook = ({ show, setError }) => {
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
-  const [authorName, setAuthorName] = useState('');
-  const [authorBorn, setAuthorBorn] = useState('');
-  const [authorBookCount, setAuthorBookCount] = useState(0)
-  const { loading, error, data: authorData } = useQuery(FIND_AUTHOR, {
-      variables: { name: authorName },
-      onError: (error) => {
-        // Handle error if needed
-        console.error('Error finding author:', error.message);
-      }
-    });
+  const [author, setAuthor] = useState('');
+
+  /*
+  const { loading, data, error, refetch} = useQuery(FIND_AUTHOR, {
+    variables: { authorName },
+    refetchOnWindowFocus: false,
+    skip: !authorName,
+    enabled: false
+  })*/
 
   const [createBook] = useMutation(CREATE_BOOK, {
     refetchQueries: [{ query: ALL_BOOKS }],
@@ -24,36 +23,36 @@ const NewBook = ({ show, setError }) => {
       const messages = error.graphQLErrors.map(e => e.message).join('\n')
       setError(messages)
     }
-  })
+  })/*
   const [createAuthor] = useMutation(CREATE_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
     onError: (error) => {
       const messages = error.graphQLErrors.map(e => e.message).join('\n')
       setError(messages)
     }
-  })
+  })*/
 
   const submit = async (event) => {
     event.preventDefault()
     console.log("LEGOO")
     try {
+      /*
       let author;
-      if (!error) {
-        author = authorData
-      } else {
-        const newAuthor = await createAuthor({
-          variables: {
-            name: authorName,
-            born: authorBorn,
-            bookcount: authorBookCount
-          }
+      refetch()
+      const newAuthor = await createAuthor({
+        variables: {
+          name: authorName,
+          born: authorBorn,
+          bookcount: authorBookCount
+        }
       })
       author = newAuthor.data.addAuthor;
-    }
+      console.log(author)
+      console.log(newAuthor)*/
       await createBook({
         variables: {
           title,
-          author: author._id,
+          author: author,
           published,
           genres
         }
@@ -61,8 +60,7 @@ const NewBook = ({ show, setError }) => {
 
       // Reset form fields after successful submission
       setTitle('')
-      setAuthorName('')
-      setAuthorBorn('')
+      setAuthor('')
       setPublished('')
       setGenres([])
       setGenre('')
@@ -98,16 +96,8 @@ const NewBook = ({ show, setError }) => {
         <div>
           Author Name
           <input
-            value={authorName}
-            onChange={({ target }) => setAuthorName(target.value)}
-            required
-          />
-        </div>
-        <div>
-          Author Born
-          <input
-            value={authorBorn}
-            onChange={({ target }) => setAuthorBorn(target.value)}
+            value={author}
+            onChange={({ target }) => setAuthor(target.value)}
             required
           />
         </div>

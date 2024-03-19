@@ -46,16 +46,8 @@ export const FIND_AUTHOR = gql`
   }
 `
 
-export const AUTHOR_INPUT = gql`
-  input AuthorInput {
-    name: String!
-    born: String!
-    bookcount: Int!
-  }
-`
-
 export const CREATE_BOOK = gql`
-  mutation createBook($title: String!, $author: AuthorInput!, $published: String!, $genres: [String!]!) {
+  mutation createBook($title: String!, $author: String!, $published: String!, $genres: [String!]!) {
     addBook(
       title: $title,
       author: $author,
