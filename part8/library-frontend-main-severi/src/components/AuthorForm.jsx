@@ -5,12 +5,11 @@ import Select from 'react-select'
 import { EDIT_AUTHOR, ALL_AUTHORS } from '../queries'
 
 const AuthorForm = ({ setError }) => {
+  const [authors, setAuthors] = useState([])
   const [selectedAuthor, setSelectedAuthor] = useState(null)
   const [newBorn, setNewBorn] = useState('')
 
-  const { loading, error, author_data } = useQuery(ALL_AUTHORS)
-
-  let authors
+  const { loading, error, data: authorData } = useQuery(ALL_AUTHORS)
 
   const [changeAuthorBorn, result] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
@@ -20,9 +19,29 @@ const AuthorForm = ({ setError }) => {
     }
   })
 
+  useEffect(() => {
+    if (authorData) {
+      // Update state with fetched author data
+      setSelectedAuthor(null) // Reset selected author when data changes
+    }
+  }, [authorData])
+
+  useEffect(() => {
+    if (result.data && result.data.editAuthorBorn === null) {
+      setError('Author not found')
+    }
+  }, [result.data])
+
+  if ( loading) {
+    return null
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault()
-
     if (!selectedAuthor || !newBorn) {
       setError('Please select an author and enter a new born year.')
       return
@@ -34,17 +53,13 @@ const AuthorForm = ({ setError }) => {
     setNewBorn('')
   }
 
-  useEffect(() => {
-    if (result.data && result.data.editAuthorBorn === null) {
-      setError('Author not found')
-    }
-  }, [result.data])
-
+  /*
   if (!error) {
-    authors = JSON.stringify(author_data)
-  }
+    setAuthors(authorData)
+    console.log("AUTHORIT",authors)
+  }*/
 
-  const authorOptions = authors ? authors.allAuthors.map(author => ({
+  const authorOptions = authorData ? authorData.allAuthors.map(author => ({
     value: author.name,
     label: author.name
   })) : [];

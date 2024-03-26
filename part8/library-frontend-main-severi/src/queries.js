@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 
-export const ALL_BOOKS = gql`
-  query {
-    allBooks {
+export const FIND_BOOK = gql`
+  query findBookByTitle($titleToSearch: String!) {
+    findBook(title: $titleToSearch) {
       title
       author {
         name
@@ -14,19 +14,6 @@ export const ALL_BOOKS = gql`
   }
 `
 
-export const FIND_BOOK = gql`
-  query findBookByTitle($titleToSearch: String!) {
-    findBook(title: $titleToSearch) {
-      title
-      author {
-        name
-        born
-      }
-      published
-    }
-  }
-`
-
 export const FIND_USER = gql`
   query findUserByName($nameToSearch: String!) {
     findUser(username: $nameToSearch) {
@@ -34,6 +21,27 @@ export const FIND_USER = gql`
       favoriteGenre
     }
   }
+`
+
+const BOOK_DETAILS = gql`
+  fragment BookDetails on Book {
+    title
+    published
+    genres
+    id
+    author {
+      name
+    }
+  }
+`
+
+export const ALL_BOOKS = gql`
+query {
+  allBooks {
+   ...BookDetails
+  }
+}
+${BOOK_DETAILS}
 `
 
 export const ALL_AUTHORS = gql`
@@ -64,16 +72,9 @@ export const CREATE_BOOK = gql`
       published: $published,
       genres: $genres
     ) {
-      title
-      author {
-        name
-        born
-        bookcount
-      }
-      published
-      genres
+      ...BookDetails
     }
-  }
+  }${BOOK_DETAILS}
 `
 
 export const CREATE_AUTHOR = gql`
@@ -115,4 +116,13 @@ export const CREATE_USER = gql`
       favoriteGenre
     }
   }
-`;
+`
+
+export const BOOK_ADDED = gql`
+  subscription {
+    bookAdded {
+      ...BookDetails
+    }
+  }
+  ${BOOK_DETAILS}
+`

@@ -10,7 +10,9 @@ const LoginForm = ({ setLoggedUser, setError, setToken }) => {
 
   const [ login, result ] = useMutation(LOGIN, {
     onError: (error) => {
-      setError(error.graphQLErrors[0].message)
+      console.log(error)
+      if(error.graphQLErrors) setError(error.graphQLErrors.message)
+      else setError(error)
     },
  /*   update: (cache, response) => {
         cache.updateQuery({ query: ALL_PERSONS },({ allPersons }) => {
@@ -25,6 +27,7 @@ const LoginForm = ({ setLoggedUser, setError, setToken }) => {
   useEffect(() => {
     if ( result.data ) {
       const token = result.data.login.value
+      console.log("TÄS TOKENI", token)
       setToken(token)
       localStorage.setItem('severi-user-token', token)
     }

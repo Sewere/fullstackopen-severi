@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 import { ALL_BOOKS, CREATE_BOOK, FIND_AUTHOR, CREATE_AUTHOR, ALL_AUTHORS } from '../queries'
+import { updateCache } from '../App'
+//import { GraphQLErrors } from 'graphql'
 
 const NewBook = ({ show, setError }) => {
   const [title, setTitle] = useState('')
@@ -20,11 +22,7 @@ const NewBook = ({ show, setError }) => {
 
   const [ createBook ] = useMutation(CREATE_BOOK, {
     update: (cache, response) => {
-      cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
-        return {
-          allBooks: allBooks.concat(response.data.addBook),
-        }
-      })
+      updateCache(cache, { query: ALL_BOOKS }, response.data.addBook)
     },
     onError: (error) => {
       const messages = error.graphQLErrors.map(e => e.message).join('\n')
@@ -44,7 +42,7 @@ const NewBook = ({ show, setError }) => {
 
   const submit = async (event) => {
     event.preventDefault()
-    console.log("LEGOO")
+    //console.log("LEGOO")
     try {
       /*
       let author;
